@@ -1,0 +1,51 @@
+close all;
+clear all;
+
+%Kinova spherical 7dof DH Parameters
+L1 = Link('d', 0.2755 ,'a', 0       ,'alpha', pi/2  ,'qlim', deg2rad([-350 350]));
+L2 = Link('d', 0       ,'a', 0       ,'alpha', pi/2  ,'qlim', deg2rad([47 313]));
+L3 = Link('d', 0.41   ,'a', 0       ,'alpha', pi/2  ,'qlim', deg2rad([-350 350]));
+L4 = Link('d', 0.0098 ,'a', 0       ,'alpha', pi/2  ,'qlim', deg2rad([30 330]));
+L5 = Link('d', 0.3111  ,'a', 0       ,'alpha', pi/2  ,'qlim', deg2rad([-350 350]));
+L6 = Link('d', 0       ,'a', 0       ,'alpha', pi/2  ,'qlim', deg2rad([65 295]));
+L7 = Link('d', 0.2638 ,'a', 0       ,'alpha', pi    ,'qlim', deg2rad([-350 350]));
+
+Kinova= SerialLink([L1, L2, L3, L4, L5, L6, L7],'name','Kinova robot spherical 7dof');
+Kinova.base = transl( 0, 0, 0);
+
+% q0 is initial pose of Kinova 7dof
+q0 = deg2rad([ 180 180 180 180 180 180 180]);
+Kinova.plot(q0, 'workspace',[ -2, 2, -1.5, 2, -0.75, 2], 'scale', 0.3);
+Kinova.teach
+
+view(45,45);
+% camzoom(15);,
+hold on;
+%
+% Coordinates for where the wall will be built and the location of each
+% brick
+toollocation = [0.2    ,0.2    ,0 
+                0.2    ,-0.2   ,0
+                -0.2   ,0.2    ,0
+                0.5    ,0.2    ,0
+                0.5    ,-0.2   ,0
+                0.5    ,0.6    ,0
+                1      ,0.5    ,0
+                1      ,0.75   ,0
+                1      ,1      ,0];
+
+% spawning tools
+for n = 1:9
+[f,v,data] = plyread('brick.ply');
+brick{n}= PlaceObject('brick.ply',toollocation(n,:));
+end
+
+y=1;
+steps=25;
+tkinova=gonextpos(Kinova, toollocation(y,:), steps);
+
+for x=1:25
+        %moving Kinova robot to tool location
+        Kinova.animate(tkinova(x,:));
+        pause(0.01)
+end
