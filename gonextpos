@@ -1,0 +1,10 @@
+function armgoal=gonextpos(robot, finalpos, steps)
+
+currentpos=robot.getpos();
+
+bnextpos=transl(finalpos)* trotx(deg2rad(180)) * troty(deg2rad(0)) * trotz(deg2rad(90));
+nextpos=robot.ikcon(bnextpos, currentpos);
+
+armgoal=jtraj(currentpos,nextpos,steps);
+
+end
